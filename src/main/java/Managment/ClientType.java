@@ -1,5 +1,5 @@
 package Managment;
 
 public enum ClientType {
-    ADMINISTRATOR,COMPANY,CUSTOMER
+    ADMINISTRATOR, COMPANY, CUSTOMER
 }

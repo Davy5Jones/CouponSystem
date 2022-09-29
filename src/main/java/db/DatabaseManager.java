@@ -32,7 +32,7 @@ public class DatabaseManager {
             "  `id` INT NOT NULL AUTO_INCREMENT,\n" +
             "  `name` VARCHAR(45) NULL,\n" +
             "  PRIMARY KEY (`id`));\n";
-    private static final String CREATE_TABLE_COUPONS="CREATE TABLE `java-151-cs1`.`coupons` (\n" +
+    private static final String CREATE_TABLE_COUPONS = "CREATE TABLE `java-151-cs1`.`coupons` (\n" +
             "  `id` INT NOT NULL AUTO_INCREMENT,\n" +
             "  `COMPANY_ID` INT NULL,\n" +
             "  `CATEGORY_ID` INT NULL,\n" +
@@ -54,7 +54,7 @@ public class DatabaseManager {
             "    REFERENCES `java-151-cs1`.`categories` (`id`)\n" +
             "    ON DELETE NO ACTION\n" +
             "    ON UPDATE NO ACTION);";
-    private static final String CREATE_CUSTOMER_VS_COUPONS ="CREATE TABLE `java-151-cs1`.`customers_vs_coupons` (\n" +
+    private static final String CREATE_CUSTOMER_VS_COUPONS = "CREATE TABLE `java-151-cs1`.`customers_vs_coupons` (\n" +
             "  `CUSTOMER_ID` INT NOT NULL,\n" +
             "  `COUPON_ID` INT NOT NULL,\n" +
             "  PRIMARY KEY (`CUSTOMER_ID`, `COUPON_ID`),\n" +
@@ -69,22 +69,19 @@ public class DatabaseManager {
             "    REFERENCES `java-151-cs1`.`coupons` (`id`)\n" +
             "    ON DELETE NO ACTION\n" +
             "    ON UPDATE NO ACTION);\n";
-    private static final String newCatQuery= "INSERT INTO `java-151-cs1`.`categories` (`name`) VALUES (?);\n";
-    public static void dropAndCreateStrategy() throws SQLException {
-        try {
-            JDBCUtils.runQuery(DROP_SCHEMA);
-        }catch (SQLException e) {
+    private static final String newCatQuery = "INSERT INTO `java-151-cs1`.`categories` (`name`) VALUES (?);\n";
 
-        }
+    public static void dropAndCreateStrategy() throws SQLException {
+        JDBCUtils.runQuery(DROP_SCHEMA);
         JDBCUtils.runQuery(CREATE_SCHEMA);
         JDBCUtils.runQuery(CREATE_TABLE_COMPANIES);
         JDBCUtils.runQuery(CREATE_TABLE_CUSTOMERS);
         JDBCUtils.runQuery(CREATE_TABLE_CATEGORIES);
         JDBCUtils.runQuery(CREATE_TABLE_COUPONS);
-        for (Category cat: Category.values()) {
-            Map<Integer,Object> map = new HashMap<>();
-            map.put(1,cat.name());
-            JDBCUtils.runQuery(newCatQuery,map);
+        for (Category cat : Category.values()) {
+            Map<Integer, Object> map = new HashMap<>();
+            map.put(1, cat.name());
+            JDBCUtils.runQuery(newCatQuery, map);
         }
         JDBCUtils.runQuery(CREATE_CUSTOMER_VS_COUPONS);
     }

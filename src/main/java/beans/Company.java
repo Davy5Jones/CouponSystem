@@ -1,5 +1,6 @@
 package beans;
 
+import java.util.ArrayList;
 import java.util.List;
 
 public class Company {
@@ -7,7 +8,7 @@ public class Company {
     private String name;
     private String email;
     private String password;
-    private List<Coupon> coupons;
+    private List<Coupon> coupons = new ArrayList<>();
 
     public Company(String name, String email,
                    String password) {
@@ -17,7 +18,7 @@ public class Company {
     }
 
     public Company(int id, String name, String email, String password, List<Coupon> coupons) {
-        this(name,email,password);
+        this(name, email, password);
         this.coupons = coupons;
         this.id = id;
 

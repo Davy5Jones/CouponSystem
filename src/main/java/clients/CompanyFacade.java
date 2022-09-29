@@ -1,6 +1,8 @@
 package clients;
 
 import Helper.SystemException;
+import Helper.SystemExceptionEnum;
+import Helper.Utils;
 import beans.Category;
 import beans.Company;
 import beans.Coupon;
@@ -14,59 +16,52 @@ public class CompanyFacade extends ClientFacade {
     private int companyID;
 
 
-
     @Override
     public boolean login(String email, String password) throws SQLException, SystemException {
-        if (!companiesDBDAO.isExists(email,password)) throw new SystemException("email or password are wrong!");
+        if (!companiesDBDAO.isExists(email, password))
+            throw new SystemException(SystemExceptionEnum.EMAIL_OR_PASSWORD_WRONG.getMessage());
         companyID = companiesDBDAO.getIDByEmail(email);
         return true;
     }
+
     public void addCoupon(Coupon coupon) throws SQLException, SystemException {
         coupon.setCompanyID(companyID);
-        if (coupon.getEndDate().before(new Date(System.currentTimeMillis()))) throw new SystemException("invalid end Date,Already expired");
-        if (coupon.getStartDate().after(coupon.getEndDate())) throw new SystemException("invalid end Date, end date is before start date");
+        if (coupon.getEndDate().before(new Date(System.currentTimeMillis())))
+            throw new SystemException(SystemExceptionEnum.INVALID_DATE.getMessage());
+        if (coupon.getStartDate().after(coupon.getEndDate()))
+            throw new SystemException("invalid end Date, end date is before start date");
 
-        if (couponsDBDAO.couponExistsByCompanyAndTitle(coupon)){
+        if (couponsDBDAO.couponExistsByCompanyAndTitle(coupon)) {
             throw new SystemException("title already in use in the company!");
         }
-        couponLock.lock();
-        try {
-            couponsDBDAO.add(coupon);
-        }finally {
-            couponLock.unlock();
-        }
-    }
-    public void updateCoupon(Coupon coupon) throws SQLException, SystemException {
-        if (coupon.getEndDate().before(new Date(System.currentTimeMillis()))) throw new SystemException("invalid end Date,Already expired");
-        if (coupon.getStartDate().after(coupon.getEndDate())) throw new SystemException("invalid end Date, end date is before start date");
+        couponsDBDAO.add(coupon);
 
-        if (coupon.getCompanyID()!=companyID){
-            throw new SystemException("cannot update company ID!");
+    }
+
+    public void updateCoupon(Coupon coupon) throws SQLException, SystemException {
+        if (Utils.dateValid(coupon.getStartDate(), coupon.getEndDate()))
+            throw new SystemException(SystemExceptionEnum.INVALID_DATE.getMessage());
+
+
+        if (coupon.getCompanyID() != companyID) {
+            throw new SystemException(SystemExceptionEnum.CANNOT_UPDATE_ID.getMessage());
         }
-        couponLock.lock();
-        try {
-            couponsDBDAO.update(coupon,coupon.getId());
-        }finally {
-            couponLock.unlock();
-        }
+        couponsDBDAO.update(coupon, coupon.getId());
+
     }
 
     public void deleteCoupon(int id) throws SQLException, SystemException {
-        if (couponsDBDAO.getOne(id).getCompanyID()!=companyID){
-            throw new SystemException("cannot delete other company's coupon");
+        if (couponsDBDAO.getOne(id).getCompanyID() != companyID) {
+            throw new SystemException(SystemExceptionEnum.CANNOT_DELETE_ANOTHER.getMessage());
         }
-        couponLock.lock();
-        try {
-            couponsDBDAO.deleteFromVS(id);
-            couponsDBDAO.drop(id);
-
-        }finally {
-            couponLock.unlock();
-        }
+        couponsDBDAO.deleteFromVS(id);
+        couponsDBDAO.drop(id);
     }
+
     public List<Coupon> companyCoupons() throws SQLException {
         return companiesDBDAO.couponListGenerator(companyID);
     }
+
     public List<Coupon> companyCouponsByCategory(Category category) throws SQLException {
         List<Coupon> couponsByCategory = new ArrayList<>();
         companiesDBDAO.couponListGenerator(companyID).forEach(coupon -> {
@@ -84,6 +79,7 @@ public class CompanyFacade extends ClientFacade {
         });
         return couponsByPrice;
     }
+
     public Company companyDetails() throws SQLException, SystemException {
         return companiesDBDAO.getOne(companyID);
     }

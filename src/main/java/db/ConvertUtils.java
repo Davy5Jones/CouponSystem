@@ -1,6 +1,5 @@
 package db;
 
-import DAOs.CompaniesDAO;
 import beans.Category;
 import beans.Company;
 import beans.Coupon;
@@ -52,13 +51,13 @@ public class ConvertUtils {
         String email = (String) map.get("EMAIL");
         String password = (String) map.get("Password");
 
-        return new Customer(id, firstName,lastName,email,password,coupons);
+        return new Customer(id, firstName, lastName, email, password, coupons);
     }
 
     public static Coupon objectToCoupon(Map<String, Object> map) {
         int id = (int) map.get("id");
         int companyID = (int) map.get("COMPANY_ID");
-        Category category = Category.values()[(int) map.get("CATEGORY_ID")-1];
+        Category category = Category.values()[(int) map.get("CATEGORY_ID") - 1];
         String title = (String) map.get("TITLE");
         String description = (String) map.get("DESCRIPTION");
         Date startDate = (Date) map.get("START_DATE");
@@ -66,15 +65,16 @@ public class ConvertUtils {
         int amount = (int) map.get("AMOUNT");
         double price = (double) map.get("price");
         String image = (String) map.get("image");
-        return new Coupon(id,companyID,category,title,description,startDate,endDate,amount,price,image);
+        return new Coupon(id, companyID, category, title, description, startDate, endDate, amount, price, image);
     }
-    public static Company objectToCompany(Map<String, Object> map,List<Coupon> couponList){
+
+    public static Company objectToCompany(Map<String, Object> map, List<Coupon> couponList) {
         int id = (int) map.get("id");
         String name = (String) map.get("Name");
         String email = (String) map.get("Email");
         String password = (String) map.get("Password");
 
-        return new Company(id,name,email,password,couponList);
+        return new Company(id, name, email, password, couponList);
     }
 
 

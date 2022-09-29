@@ -15,8 +15,8 @@ public class Coupon {
     private String image;
 
     public Coupon(int id, int companyID, Category category, String title, String description, Date startDate, Date endDate, int amount, double price, String image) {
-        this(category,title,description,startDate,endDate,amount,price,image);
-        this.companyID= companyID;
+        this(category, title, description, startDate, endDate, amount, price, image);
+        this.companyID = companyID;
         this.id = id;
 
 
@@ -31,7 +31,8 @@ public class Coupon {
         this.endDate = endDate;
         this.amount = amount;
         this.price = price;
-        this.image = image;}
+        this.image = image;
+    }
 
     public int getId() {
         return id;
@@ -141,7 +142,7 @@ public class Coupon {
 
     @Override
     public int hashCode() {
-        return id/4;
+        return id / 4;
     }
 }
 

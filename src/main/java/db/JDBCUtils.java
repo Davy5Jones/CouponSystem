@@ -22,6 +22,7 @@ public class JDBCUtils {
         ConnectionPool.getInstance().restoreConnection(connection);
 
     }
+
     public static void runQuery(String sql, Map<Integer, Object> map) throws SQLException {
 
         // Step 2 - getConnection from CP
@@ -29,7 +30,6 @@ public class JDBCUtils {
 
         // Step 3 - Prepare Statement & Execute
         PreparedStatement statement = connection.prepareStatement(sql);
-        statement = supportParams(statement,map);
 
 
         statement.execute();
@@ -40,7 +40,7 @@ public class JDBCUtils {
     }
 
     public static List<?> runQueryWithResult(String sql) throws SQLException {
-        List<?> rows = null;
+        List<?> rows;
         // Step 2 - getConnection from CP
         Connection connection = ConnectionPool.getInstance().getConnection();
 
@@ -57,14 +57,15 @@ public class JDBCUtils {
 
         return rows;
     }
-    public static List<?> runQueryWithResult(String sql,Map<Integer,Object>params) throws SQLException {
-        List<?> rows = null;
+
+    public static List<?> runQueryWithResult(String sql, Map<Integer, Object> params) throws SQLException {
+        List<?> rows;
         // Step 2 - getConnection from CP
         Connection connection = ConnectionPool.getInstance().getConnection();
 
         // Step 3 - Prepare Statement & Execute
         PreparedStatement statement = connection.prepareStatement(sql);
-        statement = supportParams(statement,params);
+        supportParams(statement, params);
 
         // Step 4 - Support ResultSet
         ResultSet resultSet = statement.executeQuery();
@@ -77,7 +78,7 @@ public class JDBCUtils {
         return rows;
     }
 
-    private static PreparedStatement supportParams(PreparedStatement statement,Map<Integer,Object> params) throws SQLException {
+    private static PreparedStatement supportParams(PreparedStatement statement, Map<Integer, Object> params) throws SQLException {
         for (Map.Entry<Integer, Object> entry : params.entrySet()) {
             int key = entry.getKey();
 

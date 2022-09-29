@@ -1,6 +1,7 @@
 package clients;
 
 import Helper.SystemException;
+import Helper.SystemExceptionEnum;
 import beans.Company;
 import beans.Coupon;
 import beans.Customer;
@@ -13,90 +14,73 @@ public class AdminFacade extends ClientFacade {
     public boolean login(String email, String password) {
         return (email.equals("admin@admin.com") && password.equals("admin"));
     }
+
     public void addCompany(Company company) throws SystemException, SQLException {
 
-        if (companiesDBDAO.isExistByNameOrEmail(company.getEmail(),company.getName())){
-            throw new SystemException("Email or name already in use");
+        if (companiesDBDAO.isExistByNameOrEmail(company.getEmail(), company.getName())) {
+            throw new SystemException(SystemExceptionEnum.EMAIL_ALREADY_USED.getMessage());
         }
-        companyLock.lock();
-        try {
-            companiesDBDAO.add(company);
 
-        }finally {
-            companyLock.unlock();
-        }
+        companiesDBDAO.add(company);
+
+
     }
+
     public void updateCompany(Company company) throws SQLException, SystemException {
         Company lastCompany = companiesDBDAO.getOne(company.getId());
-        if (!lastCompany.getName().equals(company.getName())){
-            throw new SystemException("cannot update a company's name");
+        if (!lastCompany.getName().equals(company.getName())) {
+            throw new SystemException(SystemExceptionEnum.CANNOT_UPDATE_COMPANY_NAME.getMessage());
         }
-        if (!lastCompany.getEmail().equals(company.getEmail())&&companiesDBDAO.isExistByNameOrEmail(company.getEmail(),"")){
-            throw new SystemException("Email already in use");
-        }
-        companyLock.lock();
-        try {
-            companiesDBDAO.update(company,company.getId());
-        }finally {
-            companyLock.unlock();
+        if (!lastCompany.getEmail().equals(company.getEmail()) && companiesDBDAO.isExistByNameOrEmail(company.getEmail(), "")) {
+            throw new SystemException(SystemExceptionEnum.EMAIL_ALREADY_USED.getMessage());
         }
 
+        companiesDBDAO.update(company, company.getId());
+
+
     }
+
     public void deleteCompany(int id) throws SQLException, SystemException {
         Company company = getOneCompany(id);
-        couponLock.lock();
-        try {
-            for (Coupon coupon : company.getCoupons()) {
-                couponsDBDAO.deleteFromVS(coupon.getId());
-            }
-            couponsDBDAO.deleteCompanyCoupons(id);
-        }finally {
-            couponLock.lock();
+
+        for (Coupon coupon : company.getCoupons()) {
+            couponsDBDAO.deleteFromVS(coupon.getId());
         }
-        companyLock.lock();
-        try {
-            companiesDBDAO.drop(id);
-        }finally {
-            companyLock.unlock();
-        }
+        couponsDBDAO.deleteCompanyCoupons(id);
+
+        companiesDBDAO.drop(id);
+
     }
 
     public List<Company> getAllCompanies() throws SQLException {
         return companiesDBDAO.getAll();
     }
+
     public Company getOneCompany(int id) throws SQLException, SystemException {
         return companiesDBDAO.getOne(id);
     }
+
     public void addCustomer(Customer customer) throws SystemException, SQLException {
-        customerLock.lock();
-        try {
-            if (customersDBDAO.existsByEmail(customer.getEmail())) throw new SystemException("email already in use!");
-            customersDBDAO.add(customer);
-        }finally {
-            customerLock.unlock();
-        }
-    }
-    public void updateCustomer(Customer customer, int id) throws SystemException, SQLException {
-        customerLock.lock();
-        try {
-            if (!customersDBDAO.getOne(id).getEmail().equals(customer.getEmail())) {
-                if (customersDBDAO.existsByEmail(customer.getEmail()))
-                    throw new SystemException("email already in use!");
-            }
-            customersDBDAO.update(customer, id);
-        }finally {
-            customerLock.unlock();
-        }
+
+        if (customersDBDAO.existsByEmail(customer.getEmail()))
+            throw new SystemException(SystemExceptionEnum.EMAIL_ALREADY_USED.getMessage());
+        customersDBDAO.add(customer);
+
     }
 
-    public void deleteCustomer(int id) throws SQLException {
-        customerLock.lock();
-        try {
-            customersDBDAO.deleteFromVS(id);
-            customersDBDAO.drop(id);
-        }finally {
-            customerLock.unlock();
+    public void updateCustomer(Customer customer, int id) throws SystemException, SQLException {
+
+        if (!customersDBDAO.getOne(id).getEmail().equals(customer.getEmail()) && customersDBDAO.existsByEmail(customer.getEmail())) {
+            throw new SystemException(SystemExceptionEnum.EMAIL_ALREADY_USED.getMessage());
         }
+        customersDBDAO.update(customer, id);
+    }
+
+
+    public void deleteCustomer(int id) throws SQLException {
+        customersDBDAO.deleteFromVS(id);
+        customersDBDAO.drop(id);
+
     }
 
     public List<Customer> getAllCustomers() throws SQLException {
@@ -104,7 +88,7 @@ public class AdminFacade extends ClientFacade {
     }
 
 
-    public Customer getCustomer(int id) throws SQLException {
+    public Customer getCustomer(int id) throws SQLException, SystemException {
         return customersDBDAO.getOne(id);
     }
 
